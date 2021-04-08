@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, Response, jsonify, request
 
 app = Flask(__name__)
@@ -16,7 +18,12 @@ def initialize():
     INTERCOM_CLIENT_SECRET = os.environ.get('INTERCOM_CLIENT_SECRET')
 
     intercom_signature = request.headers.get('X-Body-Signature')
-    print('Intercom signature', intercom_signature)
+    calculated_intercom_signature = hmac.new(
+        INTERCOM_CLIENT_SECRET.encode(), request.get_data(), hashlib.sha256
+    ).hexdigest()
+    print('Intercom signature from headers', intercom_signature)
+    print('Calculated Intercom signature sha256', calculated_intercom_signature)
+    print('Safe compare digest', hmac.compare_digest(intercom_signature, calculated_intercom_signature))
     return {
         'canvas': {
             'content': {
@@ -30,5 +37,5 @@ def initialize():
                     }
                 ]
             }
-        }
+        },
     }
