@@ -2,6 +2,7 @@ from flask import Flask, Response, jsonify, request
 
 app = Flask(__name__)
 
+
 @app.route('/api')
 def hello_world():
     return 'Hello, World!'
@@ -9,4 +10,25 @@ def hello_world():
 
 @app.route('/api/initialize', methods=['POST'])
 def initialize():
-    return request.get_json()
+    import hashlib
+    import hmac
+
+    INTERCOM_CLIENT_SECRET = os.environ.get('INTERCOM_CLIENT_SECRET')
+
+    intercom_signature = request.headers.get('X-Body-Signature')
+    print('Intercom signature', intercom_signature)
+    return {
+        'canvas': {
+            'content': {
+                'components': [
+                    {
+                        'type': 'button',
+                        'label': 'Click me boi!',
+                        'style': 'primary',
+                        'id': 'button_id',
+                        'action': {'type': 'submit'},
+                    }
+                ]
+            }
+        }
+    }
