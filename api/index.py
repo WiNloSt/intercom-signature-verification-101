@@ -37,7 +37,7 @@ def initialize():
 @app.route('/api/submit', methods=['POST'])
 def submit():
     verify_request(request)
-    print('/submit payload', request.get_json())
+    print('/submit payload (with completed)', request.get_json())
 
     return {
         'canvas': {
@@ -51,6 +51,9 @@ def submit():
                 ]
             }
         },
+        'event': {
+            'type': 'completed'
+        }
     }
 
 
