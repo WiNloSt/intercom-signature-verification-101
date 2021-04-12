@@ -1,6 +1,8 @@
+import hashlib
+import hmac
 import os
 
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Request, abort, request
 
 app = Flask(__name__)
 
@@ -12,18 +14,9 @@ def hello_world():
 
 @app.route('/api/initialize', methods=['POST'])
 def initialize():
-    import hashlib
-    import hmac
+    verify_request(request)
+    print('/initialize payload', request.get_json())
 
-    INTERCOM_CLIENT_SECRET = os.environ.get('INTERCOM_CLIENT_SECRET')
-
-    intercom_signature = request.headers.get('X-Body-Signature')
-    calculated_intercom_signature = hmac.new(
-        INTERCOM_CLIENT_SECRET.encode(), request.get_data(), hashlib.sha256
-    ).hexdigest()
-    print('Intercom signature from headers', intercom_signature)
-    print('Calculated Intercom signature sha256', calculated_intercom_signature)
-    print('Safe compare digest', hmac.compare_digest(intercom_signature, calculated_intercom_signature))
     return {
         'canvas': {
             'content': {
@@ -39,3 +32,34 @@ def initialize():
             }
         },
     }
+
+
+@app.route('/api/submit', methods=['POST'])
+def submit():
+    verify_request(request)
+    print('/submit payload', request.get_json())
+
+    return {
+        'canvas': {
+            'content': {
+                'components': [
+                    {
+                        "type": "text",
+                        "text": "Thanks for submitting feedback (without submit) ♥♥♥",
+                        "style": "paragraph",
+                    }
+                ]
+            }
+        },
+    }
+
+
+def verify_request(request: Request) -> None:
+    intercom_signature = request.headers.get('X-Body-Signature') or ''
+    INTERCOM_CLIENT_SECRET = os.environ['INTERCOM_CLIENT_SECRET']
+    calculated_intercom_signature = hmac.new(
+        INTERCOM_CLIENT_SECRET.encode(), request.get_data(), hashlib.sha256
+    ).hexdigest()
+
+    if not hmac.compare_digest(intercom_signature, calculated_intercom_signature):
+        abort(401)
