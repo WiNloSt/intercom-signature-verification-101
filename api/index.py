@@ -57,28 +57,39 @@ def submit():
 @app.route('/api/initialize-inbox', methods=['POST'])
 def initialize_inbox():
     verify_request(request)
-    print('/initialize payload', request.get_json())
+    print('/initialize inbox payload', request.get_json())
 
     return {
-        'canvas': {
-            'content': {
-                'components': [
+        "canvas": {
+            "content": {
+                "components": [
+                    {"type": "text", "text": "Details", "style": "header"},
+                    {
+                        "type": "data-table",
+                        "items": [
+                            {"type": "field-value", "field": "Responses", "value": "10"},
+                            {"type": "field-value", "field": "Positive", "value": "5"},
+                            {"type": "field-value", "field": "Neutral", "value": "3"},
+                            {"type": "field-value", "field": "Negative", "value": "2"},
+                        ],
+                    },
                     {"type": "text", "text": "Latest response", "style": "header"},
                     {
                         "type": "data-table",
                         "items": [
-                            {"field": "Survey", "value": "Quarterly NPS survey with the name that is really long"},
-                            {"field": "Timestamp", "value": "April 5, 2021 12:34PM UTC"},
-                            {"field": "Responses", "value": "10"},
-                            {"field": "Positive", "value": "5"},
-                            {"field": "Neutral", "value": "3"},
-                            {"field": "Negative", "value": "2"},
+                            {
+                                "type": "field-value",
+                                "field": "Survey",
+                                "value": "Quarterly NPS survey with the name that is really long",
+                            },
+                            {"type": "field-value", "field": "Timestamp", "value": "April 5, 2021 12:34PM UTC"},
                         ],
                     },
                     {
                         "type": "list",
                         "items": [
                             {
+                                "type": "item",
                                 "id": "1",
                                 "title": "How likely are you to recommend Simple Shop to a friend or colleague?",
                                 "subtitle": "\"Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.\"",
@@ -87,6 +98,7 @@ def initialize_inbox():
                                 "image_height": 50,
                             },
                             {
+                                "type": "item",
                                 "id": "2",
                                 "title": "What is your favorite dish (choice)?",
                                 "subtitle": "Sushi",
@@ -95,6 +107,7 @@ def initialize_inbox():
                                 "image_height": 30,
                             },
                             {
+                                "type": "item",
                                 "id": "3",
                                 "title": "Any other comments?",
                                 "subtitle": "Two-liter bottle. US market Coke Zero bottles, showing 2 L (70.4 imp fl oz; 67.6 US fl oz) imperial conversion. Russian market 2.5 litre, 2 litre and 1.5 litre beer bottles. The two-litre bottle is a common container for soft drinks.",
@@ -113,7 +126,7 @@ def initialize_inbox():
                     },
                 ]
             }
-        },
+        }
     }
 
 
