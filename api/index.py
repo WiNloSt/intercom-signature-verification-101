@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import logging
 import os
 
 from flask import Flask, Request, abort, request
@@ -12,9 +13,18 @@ def hello_world():
     return 'Hello, World!'
 
 
+@app.route('/api/webhook', methods=['POST'])
+def webhook():
+    verify_webhook_request(request)
+    logging.debug(request.get_json())
+    print('/initialize payload', request.get_json())
+
+    return 'OK!'
+
+
 @app.route('/api/initialize', methods=['POST'])
 def initialize():
-    verify_request(request)
+    verify_canvas_kit_request(request)
     print('/initialize payload', request.get_json())
 
     return {
@@ -36,7 +46,7 @@ def initialize():
 
 @app.route('/api/submit', methods=['POST'])
 def submit():
-    verify_request(request)
+    verify_canvas_kit_request(request)
     print('/submit payload', request.get_json())
 
     return {
@@ -56,7 +66,7 @@ def submit():
 
 @app.route('/api/initialize-inbox', methods=['POST'])
 def initialize_inbox():
-    verify_request(request)
+    verify_canvas_kit_request(request)
     print('/initialize inbox payload', request.get_json())
 
     return {
@@ -132,7 +142,7 @@ def initialize_inbox():
 
 @app.route('/api/submit-inbox', methods=['POST'])
 def submit_inbox():
-    verify_request(request)
+    verify_canvas_kit_request(request)
     print('/submit payload', request.get_json())
 
     return {
@@ -150,7 +160,18 @@ def submit_inbox():
     }
 
 
-def verify_request(request: Request) -> None:
+def verify_webhook_request(request: Request) -> None:
+    intercom_signature = request.headers.get('X-Hub-Signature') or ''
+    INTERCOM_CLIENT_SECRET = os.environ['INTERCOM_CLIENT_SECRET']
+    calculated_intercom_signature = 'sha1=' + hmac.new(
+        INTERCOM_CLIENT_SECRET.encode(), request.get_data(), hashlib.sha1
+    ).hexdigest()
+
+    if not hmac.compare_digest(intercom_signature, calculated_intercom_signature):
+        abort(401)
+
+
+def verify_canvas_kit_request(request: Request) -> None:
     intercom_signature = request.headers.get('X-Body-Signature') or ''
     INTERCOM_CLIENT_SECRET = os.environ['INTERCOM_CLIENT_SECRET']
     calculated_intercom_signature = hmac.new(
